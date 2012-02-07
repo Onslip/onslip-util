@@ -2,22 +2,32 @@
 package com.onslip.util;
 
 public abstract class ByteUtils {
+    public static byte evenParity(byte b) {
+        if ((Integer.bitCount(b & 0x7f) % 2) == 1) {
+            b |= 0x80;
+        }
+        else {
+            b &= 0x7f;
+        }
+
+        return b;
+    }
+
     public static byte[] evenParity(byte[] bytes) {
         for (int i = 0; i < bytes.length; ++i) {
-            if ((Integer.bitCount(bytes[i] & 0x7f) % 2) == 1) {
-                bytes[i] |= 0x80;
-            }
-            else {
-                bytes[i] &= 0x7f;
-            }
+            bytes[i] = evenParity(bytes[i]);
         }
 
         return bytes;
     }
 
+    public static boolean checkEvenParity(byte b) {
+        return (Integer.bitCount(b & 0xff) % 2) == 1;
+    }
+
     public static boolean checkEvenParity(byte[] bytes) {
         for (int i = 0; i < bytes.length; ++i) {
-            if ((Integer.bitCount(bytes[i] & 0xff) % 2) == 1) {
+            if (checkEvenParity(bytes[i])) {
                 return false;
             }
         }
@@ -25,9 +35,13 @@ public abstract class ByteUtils {
         return true;
     }
 
+    public static byte removeParity(byte b) {
+        return (byte) (b & 0x7f);
+    }
+
     public static byte[] removeParity(byte[] bytes) {
         for (int i = 0; i < bytes.length; ++i) {
-            bytes[i] &= 0x7f;
+            bytes[i] = removeParity(bytes[i]);
         }
 
         return bytes;
