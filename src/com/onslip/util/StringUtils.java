@@ -19,4 +19,18 @@ public abstract class StringUtils {
 	str.getChars(0, slen, buffer, len - slen);
 	return new String(buffer);
     }
+
+    public static String trim(String str, char c) {
+        int start = 0, end = str.length();
+
+        while (start < end && str.charAt(start) == c) {
+            ++start;
+        }
+
+        while (end > start && str.charAt(end - 1) == c) {
+            --end;
+        }
+
+        return str.substring(start, end);
+    }
 }

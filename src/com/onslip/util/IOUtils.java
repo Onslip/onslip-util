@@ -8,10 +8,16 @@ public abstract class IOUtils {
 
     public static String readLatin1(InputStream is, int characters)
         throws IOException {
-        byte[] buf = new byte[characters];
+        return new String(readBytes(is, characters), latin1);
+    }
+
+
+    public static byte[] readBytes(InputStream is, int bytes)
+        throws IOException {
+        byte[] buf = new byte[bytes];
 
         readFully(is, buf);
-        return new String(buf, latin1);
+        return buf;
     }
 
     public static void readFully(InputStream is, byte[] buf)
@@ -46,5 +52,18 @@ public abstract class IOUtils {
         }
 
         return sb.toString();
+    }
+
+    public static void copyStream(InputStream is, OutputStream os)
+      throws IOException {
+      byte buffer[] = new byte[8192];
+
+      int bytesRead;
+
+      while ((bytesRead = is.read(buffer)) != -1) {
+	os.write(buffer, 0, bytesRead);
+      }
+
+      os.flush();
     }
 }
