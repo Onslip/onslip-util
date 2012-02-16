@@ -80,6 +80,54 @@ public abstract class ByteUtils {
         return result;
     }
 
+    public static int binToInt(byte[] bin, boolean bigEndian) {
+        if (bin.length > 4) {
+            throw new IllegalArgumentException("Size of bin array larger than 4");
+        }
+
+        return (int)  binToLong(bin, bigEndian);
+    }
+
+    public static long binToLong(byte[] bin, boolean bigEndian) {
+        if (bin.length > 8) {
+            throw new IllegalArgumentException("Size of bin array larger than 8");
+        }
+
+        long out = 0;
+
+        for (int i = 0; i < bin.length; ++i) {
+            int offset = bigEndian ? i : bin.length - 1 - i;
+
+            out = (out << 8) | (bin[offset] & 0xff);
+        }
+
+        return out;
+    }
+
+    public static byte[] intToBin(int dec, boolean bigEndian) {
+        return toBin(dec, bigEndian, new byte[4]);
+    }
+
+    public static byte[] longToBin(long dec, boolean bigEndian) {
+        return toBin(dec, bigEndian, new byte[8]);
+    }
+
+    private static byte[] toBin(long dec, boolean bigEndian, byte[] out) {
+        for (int i = 0; i < out.length; ++i) {
+            int shift = (bigEndian ? out.length - 1 - i : i) * 8;
+
+            out[i] = (byte) (dec >>> shift);
+        }
+
+        return out;
+    }
+
+    public static byte[] concat(byte[] first, byte[] second) {
+        byte[] result = java.util.Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
+    }
+
     public static String hexDump(byte[] bin) {
         return hexDump(bin, 0, 8, 16);
     }
