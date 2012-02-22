@@ -122,6 +122,36 @@ public abstract class ByteUtils {
         return out;
     }
 
+    public static long bcdToLong(byte[] bcd) {
+        long out = 0;
+
+        for (int i = 0; i < bcd.length; ++i) {
+            int digit1 = (bcd[i] >> 4) & 15;
+            int digit2 = bcd[i] & 15;
+
+            if (digit1 > 10) {
+                throw new IllegalArgumentException("Invalid BCD digit: " + Integer.toHexString(digit1));
+            }
+
+            out = out * 10 + digit1;
+
+            if (digit2 > 10) {
+                // Make sure all remaining bytes are 0xff
+                for (int j = i + 1; j < bcd.length; ++j) {
+                    if (bcd[j] != 0xff) {
+                        throw new IllegalArgumentException("BCD digits not padded with 0xff bytes");
+                    }
+                }
+
+                break;
+            }
+
+            out = out * 10 + digit1;
+        }
+
+        return out;
+    }
+
     public static byte[] concat(byte[] first, byte[] second) {
         byte[] result = java.util.Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);
