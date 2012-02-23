@@ -168,7 +168,9 @@ public abstract class ByteUtils {
         String offsetFormat = "%0" + offsetDigits + "x  ";
 
         for (int i = 0, y = 0; i < bin.length; ++y) {
-            sb.append(String.format(offsetFormat, i + startOffset));
+            if (offsetDigits != 0) {
+                sb.append(String.format(offsetFormat, i + startOffset));
+            }
 
             for (int x = 0, j = i; x < bytesPerLine; ++x, ++j) {
                 if (j < bin.length) {
