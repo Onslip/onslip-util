@@ -33,4 +33,52 @@ public abstract class StringUtils {
 
         return str.substring(start, end);
     }
+
+    public static String indent(int level) {
+        char[] result = new char[level];
+        Arrays.fill(result, ' ');
+        return new String(result);
+    }
+
+    public static String indent(int level, String string) {
+        StringBuilder sb = new StringBuilder();
+
+        for (String line : string.split("\n")) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
+
+            sb.append(String.format("%s%s", indent(level), line));
+        }
+
+        return sb.toString();
+    }
+
+    public static String wrap(int width, String string) {
+        StringBuilder sb = new StringBuilder();
+
+        for (String line : string.split("\n")) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
+
+            int col = 0;
+
+            StringTokenizer st = new StringTokenizer(line);
+
+            while (st.hasMoreTokens()) {
+                String word = st.nextToken();
+
+                if (col + word.length() > width) {
+                    sb.append("\n");
+                    col = 0;
+                }
+
+                sb.append(word).append(" ");
+                col += word.length();
+            }
+        }
+
+        return sb.toString();
+    }
 }
