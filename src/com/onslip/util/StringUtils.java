@@ -75,7 +75,7 @@ public abstract class StringUtils {
                 }
 
                 sb.append(word).append(" ");
-                col += word.length();
+                col += word.length() + 1;
             }
         }
 
