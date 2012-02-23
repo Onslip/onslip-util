@@ -146,7 +146,7 @@ public abstract class ByteUtils {
                 break;
             }
 
-            out = out * 10 + digit1;
+            out = out * 10 + digit2;
         }
 
         return out;
