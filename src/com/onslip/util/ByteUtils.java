@@ -123,9 +123,16 @@ public abstract class ByteUtils {
     }
 
     public static long bcdToLong(byte[] bcd) {
+        int end = bcd.length;
+
+        // Ignore trailing 0xff padding
+        while (end > 0 && bcd[end - 1] == (byte) 0xff) {
+            --end;
+        }
+
         long out = 0;
 
-        for (int i = 0; i < bcd.length; ++i) {
+        for (int i = 0; i < end; ++i) {
             int digit1 = (bcd[i] >> 4) & 15;
             int digit2 = bcd[i] & 15;
 
@@ -135,15 +142,12 @@ public abstract class ByteUtils {
 
             out = out * 10 + digit1;
 
-            if (digit2 > 10) {
-                // Make sure all remaining bytes are 0xff
-                for (int j = i + 1; j < bcd.length; ++j) {
-                    if (bcd[j] != 0xff) {
-                        throw new IllegalArgumentException("BCD digits not padded with 0xff bytes");
-                    }
-                }
-
+            if (digit2 == 0xf && i == end - 1) {
+                // Last digit processed
                 break;
+            }
+            else if (digit2 > 10) {
+                throw new IllegalArgumentException("Invalid BCD digit: " + Integer.toHexString(digit1));
             }
 
             out = out * 10 + digit2;
