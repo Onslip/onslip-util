@@ -81,4 +81,18 @@ public abstract class StringUtils {
 
         return sb.toString();
     }
+
+    public static String join(Object[] array, String delim) {
+        StringBuilder sb = new StringBuilder();
+
+        for (Object o : array) {
+            if (sb.length() != 0) {
+                sb.append(delim);
+            }
+
+            sb.append(o.toString());
+        }
+
+        return sb.toString();
+    }
 }
