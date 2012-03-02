@@ -162,6 +162,20 @@ public abstract class ByteUtils {
         return result;
     }
 
+    public static byte[] xor(byte[] first, byte[] second) {
+        if (first.length != second.length) {
+            throw new IllegalArgumentException("Array sizes differ");
+        }
+
+        byte[] result = new byte[first.length];
+
+        for (int i = 0; i < first.length; ++i) {
+            result[i] = (byte) (first[i] ^ second[i]);
+        }
+
+        return result;
+    }
+
     public static String hexDump(byte[] bin) {
         return hexDump(bin, 0, 8, 16);
     }
