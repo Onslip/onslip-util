@@ -1,6 +1,8 @@
 
 package com.onslip.util;
 
+import java.util.regex.Pattern;
+
 public abstract class ByteUtils {
     public static byte evenParity(byte b) {
         if ((Integer.bitCount(b & 0x7f) % 2) == 1) {
@@ -51,6 +53,8 @@ public abstract class ByteUtils {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
     };
 
+    private static Pattern hexDigits = Pattern.compile("[0-9a-fA-F]*");
+
     public static char hexNibble(int b) {
         return hexNibbles[b & 15];
     }
@@ -81,9 +85,13 @@ public abstract class ByteUtils {
         return new String(result);
     }
 
+    public static byte[] hexToBin(String hex, char separator) {
+        return hexToBin(hex.replaceAll("([0-9a-fA-F])" + separator + "([0-9a-fA-F])", "$1$2"));
+    }
+
     public static byte[] hexToBin(String hex) {
-        if (hex.length() % 2 != 0) {
-            throw new IllegalArgumentException("Hex digit sequence length must be even");
+        if (hex.length() % 2 != 0 || !hexDigits.matcher(hex).matches()) {
+            throw new IllegalArgumentException("Hex digit sequence length must be even and contain only hex digits");
         }
 
         byte[] result = new byte[hex.length() / 2];
@@ -169,6 +177,15 @@ public abstract class ByteUtils {
         }
 
         return out;
+    }
+
+    public static byte[] longToBCD(long dec, int length) {
+        String ascii   = Long.toString(dec);
+        char[] padding = new char[length * 2 - ascii.length()];
+
+        java.util.Arrays.fill(padding, 'F');
+
+        return hexToBin(ascii + new String(padding));
     }
 
     public static byte[] concat(byte[] first, byte[] second) {
