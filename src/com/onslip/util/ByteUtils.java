@@ -55,6 +55,21 @@ public abstract class ByteUtils {
         return hexNibbles[b & 15];
     }
 
+    public static String binToHex(byte[] bin, char separator) {
+        String result = binToHex(bin);
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < result.length(); ++i) {
+            if (sb.length() != 0 && (i % 2) == 0) {
+                sb.append(separator);
+            }
+
+            sb.append(result.charAt(i));
+        }
+
+        return sb.toString();
+    }
+
     public static String binToHex(byte[] bin) {
         char[] result = new char[bin.length * 2];
 
