@@ -24,15 +24,13 @@ public abstract class IOUtils {
         throws IOException {
         int pos = 0, cnt;
 
-        while ((cnt = is.read(buf, pos, buf.length - pos)) > 0) {
+        while (pos < buf.length && (cnt = is.read(buf, pos, buf.length - pos)) > 0) {
             pos += cnt;
-
-            if (pos == buf.length) {
-                return;
-            }
         }
 
-        throw new EOFException("EOF while reading " + buf.length + " characters");
+        if (pos < buf.length) {
+            throw new EOFException("EOF while reading " + buf.length + " characters");
+        }
     }
 
     public static String readUntilControl(PushbackInputStream is)
