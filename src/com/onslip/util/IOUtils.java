@@ -11,7 +11,6 @@ public abstract class IOUtils {
         return new String(readBytes(is, characters), latin1);
     }
 
-
     public static byte[] readBytes(InputStream is, int bytes)
         throws IOException {
         byte[] buf = new byte[bytes];
@@ -24,7 +23,7 @@ public abstract class IOUtils {
         throws IOException {
         int pos = 0, cnt;
 
-        while (pos < buf.length && (cnt = is.read(buf, pos, buf.length - pos)) > 0) {
+        while (pos < buf.length && (cnt = is.read(buf, pos, buf.length - pos)) >= 0) {
             pos += cnt;
         }
 
