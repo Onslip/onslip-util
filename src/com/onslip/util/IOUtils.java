@@ -32,6 +32,13 @@ public abstract class IOUtils {
         }
     }
 
+    public static byte[] readFully(InputStream is)
+        throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        copyStream(is, baos);
+        return baos.toByteArray();
+    }
+
     public static String readUntilControl(PushbackInputStream is)
         throws IOException {
         StringBuffer sb = new StringBuffer();
