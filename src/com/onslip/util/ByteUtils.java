@@ -5,22 +5,23 @@ import java.util.regex.Pattern;
 
 public abstract class ByteUtils {
     public static byte evenParity(byte b) {
-        if ((Integer.bitCount(b & 0x7f) % 2) == 1) {
+        b = removeParity(b);
+
+        if ((Integer.bitCount(b) % 2) == 1) {
             b |= 0x80;
-        }
-        else {
-            b &= 0x7f;
         }
 
         return b;
     }
 
     public static byte[] evenParity(byte[] bytes) {
+        byte[] result = new byte[bytes.length];
+
         for (int i = 0; i < bytes.length; ++i) {
-            bytes[i] = evenParity(bytes[i]);
+            result[i] = evenParity(bytes[i]);
         }
 
-        return bytes;
+        return result;
     }
 
     public static boolean checkEvenParity(byte b) {
@@ -42,11 +43,13 @@ public abstract class ByteUtils {
     }
 
     public static byte[] removeParity(byte[] bytes) {
+        byte[] result = new byte[bytes.length];
+
         for (int i = 0; i < bytes.length; ++i) {
-            bytes[i] = removeParity(bytes[i]);
+            result[i] = removeParity(bytes[i]);
         }
 
-        return bytes;
+        return result;
     }
 
     private static final char[] hexNibbles = {
