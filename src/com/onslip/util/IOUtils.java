@@ -23,7 +23,7 @@ public abstract class IOUtils {
         throws IOException {
         int pos = 0, cnt;
 
-        while (pos < buf.length && (cnt = is.read(buf, pos, buf.length - pos)) >= 0) {
+        while (pos < buf.length && (cnt = is.read(buf, pos, buf.length - pos)) > 0) {
             pos += cnt;
         }
 
