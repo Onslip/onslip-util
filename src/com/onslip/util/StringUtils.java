@@ -95,4 +95,33 @@ public abstract class StringUtils {
 
         return sb.toString();
     }
+
+    public static String escapeJava(String str) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < str.length(); ++i) {
+            char c = str.charAt(i);
+
+            switch (c) {
+                case '\b': sb.append("\\b"); break;
+                case '\t': sb.append("\\t"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\f': sb.append("\\f"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\"': sb.append("\\\""); break;
+                case '\\': sb.append("\\\\"); break;
+
+                default:
+                    if (Character.isISOControl(c)) {
+                        sb.append(String.format("\\u%04X", (int) c));
+                    }
+                    else {
+                        sb.append(c);
+                    }
+                    break;
+            }
+        }
+
+        return sb.toString();
+    }
 }
