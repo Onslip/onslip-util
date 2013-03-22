@@ -108,7 +108,7 @@ public abstract class ByteUtils {
 
     public static int binToInt(byte[] bin, boolean bigEndian) {
         if (bin.length > 4) {
-            throw new IllegalArgumentException("Size of bin array larger than 4");
+            throw new IllegalArgumentException("Size of bin array larger is " + bin.length + "; should be 4 or less");
         }
 
         return (int)  binToLong(bin, bigEndian);
@@ -116,7 +116,7 @@ public abstract class ByteUtils {
 
     public static long binToLong(byte[] bin, boolean bigEndian) {
         if (bin.length > 8) {
-            throw new IllegalArgumentException("Size of bin array larger than 8");
+            throw new IllegalArgumentException("Size of bin array larger is " + bin.length + "; should be 8 or less");
         }
 
         long out = 0;
