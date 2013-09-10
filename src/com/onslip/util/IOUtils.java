@@ -5,6 +5,7 @@ import java.io.*;
 
 public abstract class IOUtils {
     public static java.nio.charset.Charset latin1 = java.nio.charset.Charset.forName("ISO-8859-1");
+    public static java.nio.charset.Charset utf8 = java.nio.charset.Charset.forName("UTF-8");
 
     public static String readLatin1(InputStream is, int characters)
         throws IOException {
