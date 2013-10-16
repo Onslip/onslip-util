@@ -281,6 +281,23 @@ public abstract class ByteUtils {
         return sb.toString();
     }
 
+    public static String binToXString(byte[] bin) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < bin.length; ++i) {
+            int b = (int) bin[i] & 0xff;
+
+            if (Character.isISOControl(b) || b > 0x9f) {
+                sb.append(String.format("\\x%02X", b));
+            }
+            else {
+                sb.append((char) b);
+            }
+        }
+
+        return sb.toString();
+    }
+
     public static String binToCString(byte[] bin) {
         StringBuilder sb = new StringBuilder();
 
