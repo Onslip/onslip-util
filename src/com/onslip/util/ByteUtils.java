@@ -216,6 +216,10 @@ public abstract class ByteUtils {
     }
 
     public static String hexDump(byte[] bin, int startOffset, int offsetDigits, int bytesPerLine) {
+        if (bin == null) {
+            return null;
+        }
+
         StringBuilder sb = new StringBuilder();
 
         String offsetFormat = "%0" + offsetDigits + "x  ";
@@ -259,6 +263,10 @@ public abstract class ByteUtils {
     }
 
     public static String cDump(byte[] bin, int startOffset, int bytesPerLine) {
+        if (bin == null) {
+            return null;
+        }
+
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0, y = 0; i < bin.length; ++y) {
@@ -282,6 +290,10 @@ public abstract class ByteUtils {
     }
 
     public static String binToXString(byte[] bin) {
+        if (bin == null) {
+            return null;
+        }
+
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < bin.length; ++i) {
@@ -299,6 +311,10 @@ public abstract class ByteUtils {
     }
 
     public static String binToCString(byte[] bin) {
+        if (bin == null) {
+            return null;
+        }
+
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < bin.length; ++i) {
