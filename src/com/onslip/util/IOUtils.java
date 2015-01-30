@@ -71,4 +71,15 @@ public abstract class IOUtils {
 
       os.flush();
     }
+
+    public static void copyStream(InputStream is, boolean closeIS, OutputStream os, boolean closeOS)
+        throws IOException {
+        try {
+            copyStream(is, os);
+        }
+        finally {
+            if (closeIS) try { is.close(); } catch (IOException ignored) {}
+            if (closeOS) try { os.close(); } catch (IOException ignored) {}
+        }
+    }
 }
