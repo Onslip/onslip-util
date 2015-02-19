@@ -59,23 +59,26 @@ public abstract class IOUtils {
         return sb.toString();
     }
 
-    public static void copyStream(InputStream is, OutputStream os)
+    public static long copyStream(InputStream is, OutputStream os)
       throws IOException {
       byte buffer[] = new byte[8192];
+      long length = 0;
 
       int bytesRead;
 
       while ((bytesRead = is.read(buffer)) != -1) {
 	os.write(buffer, 0, bytesRead);
+        length += bytesRead;
       }
 
       os.flush();
+      return length;
     }
 
-    public static void copyStream(InputStream is, boolean closeIS, OutputStream os, boolean closeOS)
+    public static long copyStream(InputStream is, boolean closeIS, OutputStream os, boolean closeOS)
         throws IOException {
         try {
-            copyStream(is, os);
+            return copyStream(is, os);
         }
         finally {
             if (closeIS) try { is.close(); } catch (IOException ignored) {}
