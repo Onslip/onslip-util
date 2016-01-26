@@ -130,6 +130,10 @@ public abstract class ByteUtils {
         return out;
     }
 
+    public static byte[] shortToBin(short dec, boolean bigEndian) {
+        return toBin(dec, bigEndian, new byte[2]);
+    }
+
     public static byte[] intToBin(int dec, boolean bigEndian) {
         return toBin(dec, bigEndian, new byte[4]);
     }
