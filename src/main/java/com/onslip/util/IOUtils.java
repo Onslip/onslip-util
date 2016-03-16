@@ -14,22 +14,33 @@ public abstract class IOUtils {
 
     public static byte[] readBytes(InputStream is, int bytes)
         throws IOException {
+        return readBytes(is, bytes, 0);
+    }
+
+    public static byte[] readBytes(InputStream is, int bytes, int timeout)
+        throws IOException {
         byte[] buf = new byte[bytes];
 
-        readFully(is, buf);
+        readFully(is, buf, timeout);
         return buf;
     }
 
     public static void readFully(InputStream is, byte[] buf)
+                throws IOException {
+        readFully(is, buf, 0);
+    }
+
+    public static void readFully(InputStream is, byte[] buf, int timeout)
         throws IOException {
         int pos = 0, cnt;
+        long expires = System.currentTimeMillis() + (timeout > 0 ? timeout : Integer.MAX_VALUE);
 
-        while (pos < buf.length && (cnt = is.read(buf, pos, buf.length - pos)) > 0) {
+        while (pos < buf.length && (cnt = is.read(buf, pos, buf.length - pos)) >= 0 && System.currentTimeMillis() < expires) {
             pos += cnt;
         }
 
         if (pos < buf.length) {
-            throw new EOFException("EOF while reading " + buf.length + " characters");
+            throw new EOFException("EOF while reading " + buf.length + " characters; received only " + pos);
         }
     }
 
