@@ -263,10 +263,10 @@ public abstract class ByteUtils {
     }
 
     public static String cDump(byte[] bin) {
-        return cDump(bin, 0, 16);
+        return cDump(bin, 0, 16, true);
     }
 
-    public static String cDump(byte[] bin, int startOffset, int bytesPerLine) {
+    public static String cDump(byte[] bin, int startOffset, int bytesPerLine, boolean hexOnly) {
         if (bin == null) {
             return null;
         }
@@ -277,7 +277,12 @@ public abstract class ByteUtils {
             sb.append('"');
             for (int x = 0, j = i; x < bytesPerLine; ++x, ++j) {
                 if (j < bin.length) {
-                    sb.append(String.format("\\x%02X", bin[j]));
+                    if (hexOnly) {
+                        sb.append(String.format("\\x%02X", bin[j]));
+                    }
+                    else {
+                        sb.append(byteToCChar(bin[j]));
+                    }
                 }
             }
 
@@ -322,30 +327,26 @@ public abstract class ByteUtils {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < bin.length; ++i) {
-            int b = (int) bin[i] & 0xff;
-
-            switch (b) {
-                case 7:    sb.append("\\a"); break;
-                case '\b': sb.append("\\b"); break;
-                case '\t': sb.append("\\t"); break;
-                case '\n': sb.append("\\n"); break;
-                case 11:   sb.append("\\v"); break;
-                case '\f': sb.append("\\f"); break;
-                case '\r': sb.append("\\r"); break;
-                case '\"': sb.append("\\\""); break;
-                case '\\': sb.append("\\\\"); break;
-
-                default:
-                    if (Character.isISOControl(b) || b > 0x9f) {
-                        sb.append(String.format("\\x%02X", b));
-                    }
-                    else {
-                        sb.append((char) b);
-                    }
-                    break;
-            }
+            sb.append(byteToCChar(bin[i]));
         }
 
         return sb.toString();
+    }
+
+    public static String byteToCChar(int b) {
+        b &= 0xff;
+
+        switch (b) {
+            case 7:    return "\\a";
+            case '\b': return "\\b";
+            case '\t': return "\\t";
+            case '\n': return "\\n";
+            case 11:   return "\\v";
+            case '\f': return "\\f";
+            case '\r': return "\\r";
+            case '\"': return "\\\"";
+            case '\\': return "\\\\";
+            default:   return Character.isISOControl(b) || b > 0x9f ? String.format("\\%03o", b) : String.valueOf((char) b);
+        }
     }
 }
