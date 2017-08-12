@@ -2,14 +2,65 @@
 package com.onslip.util;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 
 public abstract class IOUtils {
-    public static java.nio.charset.Charset latin1 = java.nio.charset.Charset.forName("ISO-8859-1");
-    public static java.nio.charset.Charset utf8 = java.nio.charset.Charset.forName("UTF-8");
+    public static Charset latin1 = Charset.forName("ISO-8859-1");
+    public static Charset utf8   = Charset.forName("UTF-8");
+
+    public static ThreadLocal<CharsetDecoder> utf8Decoder = new ThreadLocal<CharsetDecoder>() {
+        @Override public CharsetDecoder initialValue() {
+            return utf8.newDecoder();
+        }
+    };
+
+    public static ThreadLocal<CharsetEncoder> latin1Encoder = new ThreadLocal<CharsetEncoder>() {
+        @Override public CharsetEncoder initialValue() {
+            return latin1.newEncoder();
+        }
+    };
 
     public static String readLatin1(InputStream is, int characters)
         throws IOException {
         return new String(readBytes(is, characters), latin1);
+    }
+
+    public static String readUTF8(InputStream is, int characters)
+        throws IOException {
+        return new String(readBytes(is, characters), utf8);
+    }
+
+    public static String readLatin1OrUTF8(InputStream is, int characters)
+        throws IOException {
+        return readLatin1OrUTF8(readBytes(is, characters));
+    }
+
+    public static String readLatin1OrUTF8(byte[] bytes) {
+        try {
+            if (bytes.length >= 3 && bytes[0] == (byte) 0xEF && bytes[1] == (byte) 0xBB && bytes[2] == (byte) 0xBF) {
+                // Skip BOM, parse UTF-8 stricly
+                return utf8Decoder.get().decode(ByteBuffer.wrap(bytes, 3, bytes.length - 3)).toString();
+            }
+        }
+        catch (CharacterCodingException ignored) {
+            // Fall back to Latin-1
+        }
+
+        return new String(bytes, latin1);
+    }
+
+    public static byte[] writeLatin1OrUTF8(String string) {
+        if (latin1Encoder.get().canEncode(string)) {
+            return string.getBytes(latin1);
+        }
+        else {
+            return ("\ufeff" + string).getBytes(utf8);
+        }
     }
 
     public static byte[] readBytes(InputStream is, int bytes)
