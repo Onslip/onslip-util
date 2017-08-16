@@ -129,7 +129,7 @@ public abstract class IOUtils {
       int bytesRead;
 
       while ((bytesRead = is.read(buffer)) != -1) {
-	os.write(buffer, 0, bytesRead);
+        os.write(buffer, 0, bytesRead);
         length += bytesRead;
       }
 
