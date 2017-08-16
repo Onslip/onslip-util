@@ -1,0 +1,101 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+group            = 'com.onslip'
+archivesBaseName = 'onslip-util'
+version          = '1.0.0'
+
+ext {
+    sonatypePassword = ''
+    signing {
+        password = ''
+    }
+}
+
+def desc = 'Onslip Utility Library'
+def home = 'https://github.com/Onslip/onslip-util'
+def repo = 'https://github.com/Onslip/onslip-util.git'
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': desc,
+                   'Implementation-Version': version
+    }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+                name archivesBaseName
+                packaging 'jar'
+                description desc
+                url repo
+
+                scm {
+                    connection 'scm:git:' + repo
+                    developerConnection 'scm:git:' + repo
+                    url repo
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                    license {
+                        name 'BSD-3-Clause'
+                        url 'https://opensource.org/licenses/BSD-3-Clause'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'mb'
+                        name 'Martin Blom'
+                        email 'martin.blom@onslip.com'
+                        organization 'Onslip AB'
+                        organizationUrl 'http://www.onslip.com/'
+                    }
+                    developer {
+                        name 'Mikael Grev'
+                        email 'base64@miginfocom.com'
+                        organization 'MiG InfoCom AB'
+                    }
+                }
+            }
+        }
+    }
+}
