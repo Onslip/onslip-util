@@ -9,12 +9,8 @@ group            = 'com.onslip'
 archivesBaseName = 'onslip-util'
 version          = '1.0.0'
 
-ext {
-    sonatypePassword = ''
-    signing {
-        password = ''
-    }
-}
+def sonatypeUsername = project.hasProperty('sonatypeUsername') ? project.sonatypeUsername : ''
+def sonatypePassword = project.hasProperty('sonatypePassword') ? project.sonatypePassword : ''
 
 def desc = 'Onslip Utility Library'
 def home = 'https://github.com/Onslip/onslip-util'
@@ -42,6 +38,7 @@ artifacts {
 }
 
 signing {
+    required { gradle.startParameter.taskNames.contains("uploadArchives") }
     sign configurations.archives
 }
 
