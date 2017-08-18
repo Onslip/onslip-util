@@ -147,4 +147,49 @@ public abstract class IOUtils {
             if (closeOS) try { os.close(); } catch (IOException ignored) {}
         }
     }
+
+    /**
+     * Helper method to copy an InputStream to an OutputStream, with timeout and stop byte support.
+     *
+     * @param is           The InputStream to read from.
+     * @param os           The OutputStream to write to.
+     * @param timeout      Time-out, in milliseconds.
+     * @param len          The maximum number of bytes to copy.
+     * @param stopChars    An array of stop bytes. If any of the bytes in this array is found, copying stops.
+     * @return             false if a time-out occured, else true.
+     * @throws IOException On I/O errors.
+     */
+    public static boolean copyStream(InputStream is, OutputStream os, long timeout, long len, byte[] stopChars)
+            throws IOException {
+        long startTime = System.currentTimeMillis();
+        long readBytes = 0;
+        byte[] buffer = new byte[1];
+
+        loop: while (readBytes < len) {
+            if (is.available() > 0 && is.read(buffer) == 1) {
+                os.write(buffer);
+                readBytes++;
+
+                for (byte stopChar : stopChars) {
+                    if (buffer[0] == stopChar) {
+                        break loop;
+                    }
+                }
+            }
+            else {
+                try {
+                    Thread.sleep(10);
+                }
+                catch (InterruptedException ignored) {
+                    throw new InterruptedIOException();
+                }
+            }
+
+            if (System.currentTimeMillis() > startTime + timeout) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
