@@ -1,15 +1,24 @@
 package com.onslip.util;
 
 import java.lang.reflect.Field;
-import java.util.Comparator;;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Locale;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class CodeUtils {
     /**
      * Callback used by {@link #toString(Object, Class, FieldValueGetter)}.
      */
     public interface FieldValueGetter {
+        /** Return a field's value
+         *
+         * @param object The object to inspect.
+         * @param field  The field to get the value of.
+         * @return The field's value.
+         * @throws IllegalAccessException If this field should be skipped.
+         */
         Object getFieldValue(Object object, Field field) throws IllegalAccessException;
     }
 
@@ -17,31 +26,60 @@ public abstract class CodeUtils {
      * Utility method to dump an object into a human readable format.
      *
      * @param obj     The object to dump.
-     * @param cls     The class that determines what fields are dumped.
      * @param getter  A callback that reads the actual field value.
      * @return        A string readable by humans.
      */
-    public static String toString(Object obj, Class<?> cls, FieldValueGetter getter) {
-        StringBuilder result = new StringBuilder("[").append(obj.getClass().getSimpleName()).append(':');
+    public static String toString(Object obj, FieldValueGetter getter) {
+        return toString(obj, null, getter);
+    }
 
-        for (Field f : cls.getDeclaredFields()) {
-            String value;
-
-            try {
-                value = getter.getFieldValue(obj, f).toString();
-            }
-            catch (NullPointerException ignored) {
-                value = "<null>";
-            }
-            catch (IllegalAccessException ignored) {
-                continue;
-            }
-
-            result.append(' ').append(f.getName()).append("=").append(value);
+    private static String toString(Object obj, Class<?> cls, FieldValueGetter getter) {
+        if (toStringVisited.get().contains(obj)) {
+            return "<recursion>";
         }
 
-        return result.append(']').toString();
+        if (cls == null) {
+            cls = obj.getClass();
+        }
+
+        String name = cls.getSimpleName();
+        StringBuilder result = new StringBuilder("[").append(name.isEmpty() ? obj.getClass().getName() : name);
+
+        if (cls.getSuperclass() != Object.class) {
+            result.append(" super=").append(toString(obj, cls.getSuperclass(), getter));
+        }
+
+        toStringVisited.get().add(obj);
+
+        try {
+            for (Field f : cls.getDeclaredFields()) {
+                String value;
+
+                try {
+                    value = getter.getFieldValue(obj, f).toString();
+                }
+                catch (NullPointerException ignored) {
+                    value = "<null>";
+                }
+                catch (IllegalAccessException ignored) {
+                    continue;
+                }
+
+                result.append(' ').append(f.getName()).append("=").append(value);
+            }
+
+            return result.append(']').toString();
+        }
+        finally {
+            toStringVisited.get().remove(obj);
+        }
     }
+
+    private static ThreadLocal<Set<Object>> toStringVisited = new ThreadLocal<Set<Object>>() {
+        @Override public Set<Object> initialValue() {
+            return new HashSet<Object>();
+        }
+    };
 
     /** Like a {@link Comparator}, but compares a value with a key instead. */
     public interface KeyComparator<T, K> {
