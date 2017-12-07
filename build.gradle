@@ -7,7 +7,7 @@ targetCompatibility = 1.6
 
 group            = 'com.onslip'
 archivesBaseName = 'onslip-util'
-version          = '1.0.0'
+version          = '1.1.0'
 
 def sonatypeUsername = project.hasProperty('sonatypeUsername') ? project.sonatypeUsername : ''
 def sonatypePassword = project.hasProperty('sonatypePassword') ? project.sonatypePassword : ''
