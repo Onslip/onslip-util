@@ -3,15 +3,18 @@ package com.onslip.util;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public abstract class IOUtils {
     public static Charset latin1 = Charset.forName("ISO-8859-1");
     public static Charset utf8   = Charset.forName("UTF-8");
+
+    private static final Timer timer = new Timer(IOUtils.class.getSimpleName(), true);
 
     public static ThreadLocal<CharsetDecoder> utf8Decoder = new ThreadLocal<CharsetDecoder>() {
         @Override public CharsetDecoder initialValue() {
@@ -161,12 +164,60 @@ public abstract class IOUtils {
      */
     public static boolean copyStream(InputStream is, OutputStream os, long timeout, long len, byte[] stopChars)
             throws IOException {
-        long startTime = System.currentTimeMillis();
+        final long expires = System.currentTimeMillis() + timeout;
+
+        if (is instanceof PipedInputStream) { // PipedInputStream#available() does not detect if pipe has been closed.
+            final InputStream wrapped = is;
+
+            is = new InputStream() {
+                @Override public int available() throws IOException {
+                    int rc = wrapped.available();
+
+                    return rc == 0 ? 1 /* Force a (potentially) blocking call to read() */: rc;
+                }
+
+                @Override public int read() throws IOException {
+                    final Thread[] thread = { Thread.currentThread() };
+
+                    try {
+                        if (wrapped.available() == 0) {
+                            timer.schedule(new TimerTask() {
+                                @Override public void run() {
+                                    synchronized (thread) {
+                                        if (thread[0] != null) {
+                                            thread[0].interrupt();
+                                        }
+                                    }
+                                }
+                            }, Math.max(0, expires - System.currentTimeMillis()));
+                        }
+
+                        return wrapped.read();
+                    }
+                    finally {
+                        synchronized (thread) {
+                            thread[0] = null;
+                            Thread.interrupted(); // Clear interrupted flag, if set
+                        }
+                    }
+                }
+            };
+        }
+
         long readBytes = 0;
         byte[] buffer = new byte[1];
 
         loop: while (readBytes < len) {
-            if (is.available() > 0 && is.read(buffer) == 1) {
+            int read;
+
+            try {
+                read = is.available() > 0 ? is.read(buffer) : 0;
+            }
+            catch (InterruptedIOException ex) {
+                read = 0;
+            }
+
+            if (read == 1) {
                 os.write(buffer);
                 readBytes++;
 
@@ -176,6 +227,12 @@ public abstract class IOUtils {
                     }
                 }
             }
+            else if (read < 0) {
+                break; // EOF
+            }
+            else if (System.currentTimeMillis() > expires) {
+                return false; // Timeout
+            }
             else {
                 try {
                     Thread.sleep(10);
@@ -183,10 +240,6 @@ public abstract class IOUtils {
                 catch (InterruptedException ignored) {
                     throw new InterruptedIOException();
                 }
-            }
-
-            if (System.currentTimeMillis() > startTime + timeout) {
-                return false;
             }
         }
 
