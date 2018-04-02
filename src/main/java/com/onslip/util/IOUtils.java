@@ -159,7 +159,7 @@ public abstract class IOUtils {
      * @param timeout      Time-out, in milliseconds.
      * @param len          The maximum number of bytes to copy.
      * @param stopChars    An array of stop bytes. If any of the bytes in this array is found, copying stops.
-     * @return             false if a time-out occured, else true.
+     * @return             true if all exepcted bytes were read correctly, else false (time-out or EOF, for instace)
      * @throws IOException On I/O errors.
      */
     public static boolean copyStream(InputStream is, OutputStream os, long timeout, long len, byte[] stopChars)
@@ -216,6 +216,14 @@ public abstract class IOUtils {
             catch (InterruptedIOException ex) {
                 read = 0;
             }
+            catch (IOException ex) {
+                if (readBytes != 0) {
+                    read = -1; // Return what we've read so far
+                }
+                else {
+                    throw ex; // Error on first read: abort
+                }
+            }
 
             if (read == 1) {
                 os.write(buffer);
@@ -228,7 +236,7 @@ public abstract class IOUtils {
                 }
             }
             else if (read < 0) {
-                break; // EOF
+                return false; // EOF
             }
             else if (System.currentTimeMillis() > expires) {
                 return false; // Timeout
