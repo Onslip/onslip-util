@@ -2,20 +2,35 @@ package com.onslip.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-import org.junit.*;
-import static org.junit.Assert.*;
+
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IOUtilsTest {
     private static Timer timer = new Timer();
     private static byte[] noBytes = new byte[0];
 
-    @Test public void copyStreamTimeout() throws IOException {
-        final PipedInputStream       pis = new PipedInputStream();
-        final PipedOutputStream      pos = new PipedOutputStream(pis);
+    @Test public void copyPipedStreamTimeout() throws IOException {
+        PipedInputStream  is = new PipedInputStream();
+        PipedOutputStream os = new PipedOutputStream(is);
+
+        copyStreamTimeout(is, os);
+    }
+
+    @Test public void copyPipeTimeout() throws IOException {
+        Pipe.Source is = new Pipe.Source();
+        Pipe.Sink   os = new Pipe.Sink(is);
+
+        copyStreamTimeout(is, os);
+    }
+
+    private void copyStreamTimeout(final InputStream pis, final OutputStream pos) throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         // Timeout, no data

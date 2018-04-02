@@ -1,6 +1,7 @@
 
 package com.onslip.util;
 
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 public abstract class ByteUtils {
@@ -198,6 +199,23 @@ public abstract class ByteUtils {
     public static byte[] concat(byte[] first, byte[] second) {
         byte[] result = java.util.Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
+    }
+
+    public static byte[] concat(Collection<byte[]> chunks) {
+        int length = 0, offset = 0;
+
+        for (byte[] chunk : chunks) {
+            length += chunk.length;
+        }
+
+        byte[] result = new byte[length];
+
+        for (byte[] chunk : chunks) {
+            System.arraycopy(chunk, 0, result, offset, chunk.length);
+            offset += chunk.length;
+        }
+
         return result;
     }
 
