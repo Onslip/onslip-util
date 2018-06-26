@@ -187,13 +187,18 @@ public abstract class ByteUtils {
         return out;
     }
 
+    @Deprecated
     public static byte[] longToBCD(long dec, int length) {
+        return longToBCD(dec, false, length);
+    }
+
+    public static byte[] longToBCD(long dec, boolean zeroPad, int length) {
         String ascii   = Long.toString(dec);
         char[] padding = new char[length * 2 - ascii.length()];
 
-        java.util.Arrays.fill(padding, 'F');
+        java.util.Arrays.fill(padding, zeroPad ? '0' : 'F');
 
-        return hexToBin(ascii + new String(padding));
+        return hexToBin(zeroPad ? new String(padding) + ascii : ascii + new String(padding));
     }
 
     public static byte[] concat(byte[] first, byte[] second) {
